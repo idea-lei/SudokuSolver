@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace SukudoUI
 {
@@ -47,5 +49,14 @@ namespace SukudoUI
         public Unit? Unit { get; set; }
         public TextBox TextBox { get; set; }
         public TextBlock TextBlock { get; set; }
+
+        public void Reset()
+        {
+            if (Unit != null) Unit.Reset();
+            TextBox.Text = Unit.CurrentValue.ToString();
+            TextBox.BorderBrush = Brushes.Black;
+            TextBlock.Visibility = Visibility.Hidden;
+            TextBox.Visibility = Visibility.Visible;
+        }
     }
 }

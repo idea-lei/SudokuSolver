@@ -85,6 +85,19 @@ namespace SukudoUI
                         mat[i, j] = temp;
 
             VisualGame.Game.InitBoard(mat);
+            foreach (var unit in VisualGame)
+            {
+                if (unit.Unit == null) return;
+                unit.Unit.OnCurrentValueChanged += () =>
+                {
+                    UpdateUnitView(unit);
+                    unit.Unit.UpdatePossiableValuesForRelevantUnits();
+                };
+                unit.Unit.OnPossibleValuesChanged += () =>
+                {
+                    UpdateUnitView(unit);
+                };
+            }
         }
 
         /// <summary>
@@ -96,14 +109,27 @@ namespace SukudoUI
             if (unit.Unit.CurrentValue == null)
             {
                 unit.TextBlock.Text = null;
-                foreach (var v in unit.Unit.PossibleValues)
+                foreach (var v in unit.Unit.GetPossibleValues())
                     unit.TextBlock.Text += v.ToString();
                 unit.TextBlock.Visibility = Visibility.Visible;
                 unit.TextBox.Visibility = Visibility.Hidden;
             }
             else
             {
-                unit.TextBlock.Text = unit.Unit.CurrentValue.ToString();
+                unit.TextBox.Text = unit.Unit.CurrentValue.ToString();
+                switch (unit.Unit.UnitValueType)
+                {
+                    case UnitValueType.Given:
+                        unit.TextBox.BorderBrush = Brushes.Gray;
+                        break;
+                    case UnitValueType.Answer:
+                        unit.TextBox.BorderBrush = Brushes.LightBlue;
+                        break;
+                    case UnitValueType.Assumption:
+                        unit.TextBox.BorderBrush = Brushes.LightYellow;
+                        break;
+                }
+                
                 unit.TextBlock.Visibility = Visibility.Hidden;
                 unit.TextBox.Visibility = Visibility.Visible;
             }
@@ -124,37 +150,46 @@ namespace SukudoUI
             return sb.ToString();
         }
 
-        private void Btn_Test_Click(object sender, RoutedEventArgs e)
-        {
-            UpdateGameView();
-        }
-
-        private void UpdateGameView()
+        private void InitPossibleValues()
         {
             foreach (var unit in VisualGame)
             {
-                unit.Unit?.FindPossibleValuesForUnit();
-                UpdateUnitView(unit);
+                unit.Unit?.InitPossibleValues();
                 if (unit.Unit?.HasConflict() == true)
                 {
                     MessageBox.Show($"No possible values for unit ({unit.Unit.Coordinate.Item1}, {unit.Unit.Coordinate.Item2})!");
                     break;
                 }
-            }            
+            }
+        }
+
+        private void UpdateUnitsWithOnlyOnePossibleValue()
+        {
+            foreach (var unit in VisualGame)
+                unit.Unit?.UpdateAnswerWhenOnlyOnePossibleValue();
+        }
+
+        private void Solve()
+        {
+            InitPossibleValues();
+            UpdateUnitsWithOnlyOnePossibleValue();
         }
 
         private void Btn_Start_Click(object sender, RoutedEventArgs e)
         {
             InitGame();
+            Btn_Start.IsEnabled = false;
+            Btn_Reset.IsEnabled = true;
+            Solve();
         }
 
         private void Btn_Reset_Click(object sender, RoutedEventArgs e)
         {
             foreach (var unit in VisualGame)
-            {
-                unit.TextBlock.Visibility = Visibility.Hidden;
-                unit.TextBox.Visibility = Visibility.Visible;
-            }
+                unit.Reset();
+
+            Btn_Start.IsEnabled = true;
+            Btn_Reset.IsEnabled = false;
         }
     }
 }

@@ -9,48 +9,19 @@ namespace SukudoSolver.Solver
 {
     public static class Solver
     {
-        /// <summary>
-        /// to update possible values of a *unknown* unit
-        /// </summary>
-        /// <param name="unit"></param>
-        public static void FindPossibleValuesForUnit(this Unit unit)
-        {
-            if (unit.CurrentValue != null) return;
-            HashSet<int> apprentValues = new();
-
-            // check row
-            for (int i = 0; i < 9; i++)
-            {
-                int? checkedUnitValue = unit.Game.GameBoard[i, unit.Coordinate.Item2].CurrentValue;
-                if (checkedUnitValue.HasValue)
-                    apprentValues.Add(checkedUnitValue.Value);
-            }
-
-            // check column
-            for (int j = 0; j < 9; j++)
-            {
-                int? checkedUnitValue = unit.Game.GameBoard[unit.Coordinate.Item1, j].CurrentValue;
-                if (checkedUnitValue.HasValue)
-                    apprentValues.Add(checkedUnitValue.Value);
-            }
-
-            // check for block
-            for (int i = unit.BlockOrigin.Item1; i < unit.BlockOrigin.Item1 + 3; i++)
-                for (int j = unit.BlockOrigin.Item2; j < unit.BlockOrigin.Item2 + 3; j++)
-                {
-                    int? checkedUnitValue = unit.Game.GameBoard[i, j].CurrentValue;
-                    if (checkedUnitValue.HasValue)
-                        apprentValues.Add(checkedUnitValue.Value);
-                }
-
-            unit.PossibleValues.Clear();
-            foreach (int v in Enumerable.Range(1, 9).Except(apprentValues))
-                unit.PossibleValues.Add(v);
-        }
-
         public static bool HasConflict(this Unit unit)
         {
-            return unit.PossibleValues.Count == 0;
+            return unit.GetPossibleValues().Length == 0 && unit.CurrentValue == null;
+        }
+
+        public static void UpdateAnswerWhenOnlyOnePossibleValue(this Unit unit)
+        {
+            var possibleValues = unit.GetPossibleValues();
+            if (possibleValues.Length == 1)
+            {
+                unit.Answer = possibleValues[0];
+                unit.ClearPossibleValues();
+            }
         }
 
         /// <summary>
@@ -63,16 +34,16 @@ namespace SukudoSolver.Solver
 
             // check row
             for (int i = 0; i < 9; i++)
-                unit.Game.GameBoard[i, unit.Coordinate.Item2].PossibleValues.Remove(unit.CurrentValue.Value);
+                unit.Game.GameBoard[i, unit.Coordinate.Item2].RemovePossibleValues(unit.CurrentValue.Value);
 
             // check column
             for (int j = 0; j < 9; j++)
-                unit.Game.GameBoard[unit.Coordinate.Item1, j].PossibleValues.Remove(unit.CurrentValue.Value);
+                unit.Game.GameBoard[unit.Coordinate.Item1, j].RemovePossibleValues(unit.CurrentValue.Value);
 
             // check for block
             for (int i = unit.BlockOrigin.Item1; i < unit.BlockOrigin.Item1 + 3; i++)
                 for (int j = unit.BlockOrigin.Item2; j < unit.BlockOrigin.Item2 + 3; j++)
-                    unit.Game.GameBoard[i, j].PossibleValues.Remove(unit.CurrentValue.Value);
+                    unit.Game.GameBoard[i, j].RemovePossibleValues(unit.CurrentValue.Value);
         }
     }
 }

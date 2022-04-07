@@ -31,7 +31,6 @@
         <WrapPanel>
             <Button Content="Start" x:Name="Btn_Start" Click="Btn_Start_Click"/>
             <Button Content="Reset" x:Name="Btn_Reset" Click="Btn_Reset_Click" Background="OrangeRed"/>
-            <Button Content="Test" x:Name="Btn_Test" Click="Btn_Test_Click"/>
         </WrapPanel>
     </StackPanel>
 </Window>
