@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SukudoSolver.DataType;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +21,9 @@ namespace SukudoUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Grid[,] Grids = new Grid[3,3];
+        // matrix of all blocks
+        private Grid[,] Blocks = new Grid[3, 3];
+        private VisualGame VisualGame = new();
         public MainWindow()
         {
             InitializeComponent();
@@ -42,19 +45,90 @@ namespace SukudoUI
                     }
 
                     // these two for-loops are for the 'g' above
-                    for (int x = 0;x<3; x++)
+                    for (int x = 0; x < 3; x++)
                         for (int y = 0; y < 3; y++)
                         {
-                            TextBox t = new();
-                            Grid.SetColumn(t, x);
-                            Grid.SetRow(t, y);
-                            g.Children.Add(t);
+                            // for current value
+                            TextBox tbox = new();
+                            Grid.SetColumn(tbox, y);
+                            Grid.SetRow(tbox, x);
+                            g.Children.Add(tbox);
+                            VisualGame.TextBox[i * 3 + x, j * 3 + y] = tbox;
+
+                            // for assumption
+                            TextBlock tblock = new()
+                            {
+                                Visibility = Visibility.Hidden,
+                                VerticalAlignment = VerticalAlignment.Center,
+                                HorizontalAlignment = HorizontalAlignment.Center
+                            };
+                            Grid.SetColumn(tblock, y);
+                            Grid.SetRow(tblock, x);
+                            g.Children.Add(tblock);
+
+                            VisualGame.TextBlock[i * 3 + x, j * 3 + y] = tblock;
                         }
-                    Grid.SetColumn(g, i * 2);
-                    Grid.SetRow(g, j * 2);
+                    Grid.SetColumn(g, j * 2);
+                    Grid.SetRow(g, i * 2);
                     G_Game.Children.Add(g);
-                    Grids[i,j] = g;
+                    Blocks[i, j] = g;
                 }
+        }
+
+        private void InitGame()
+        {
+            int?[,] mat = new int?[9, 9];
+            for (int i = 0; i < 9; i++)
+                for (int j = 0; j < 9; j++)
+                    if (int.TryParse(VisualGame[i, j].TextBox.Text, out int temp))
+                        mat[i, j] = temp;
+
+            VisualGame.Game.InitBoard(mat);
+        }
+
+        /// <summary>
+        /// if the current value of the unit is null, show the possible values, otherwise show the current value
+        /// </summary>
+        private void UpdateUnitView(VisualUnit unit)
+        {
+            if (unit.Unit.CurrentValue == null)
+            {
+                foreach (var v in unit.Unit.PossibleValues)
+                    unit.TextBlock.Text += v.ToString();
+                unit.TextBlock.Visibility = Visibility.Visible;
+                unit.TextBox.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                unit.TextBlock.Text = unit.Unit.CurrentValue.ToString();
+                unit.TextBlock.Visibility = Visibility.Hidden;
+                unit.TextBox.Visibility = Visibility.Visible;
+            }
+        }
+
+        // for testing
+        private string MatrixToString(int?[,] matrix)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    sb.Append(matrix[i, j] == null ? "0" : matrix[i, j].ToString());
+                }
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
+
+        private void Btn_Test_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var unit in VisualGame) UpdateUnitView(unit);
+        }
+
+        private void Btn_Start_Click(object sender, RoutedEventArgs e)
+        {
+            InitGame();
         }
     }
 }

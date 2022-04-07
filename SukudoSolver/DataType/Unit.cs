@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace SukudoSolver.DataType
 {
-    internal class Unit
+    public class Unit
     {
         /// <summary>
         /// coordinate of the unit in the game board
+        /// item1 -> x (row)
+        /// item2 -> y (column)
         /// </summary>
         public (int, int) Coordinate { get; init; }
 
@@ -31,7 +33,18 @@ namespace SukudoSolver.DataType
         /// </summary>
         public List<int> Answers { get; } = new();
 
-        public int? CurrentAnswer { get; set; }
+        /// <summary>
+        /// Current Answer
+        /// </summary>
+        private int? _answer;
+        public int? Answer
+        {
+            get => _answer; set
+            {
+                _answer = value;
+                OnAnswerChanged?.Invoke();
+            }
+        }
 
         /// <summary>
         /// assume value for the unit
@@ -41,18 +54,22 @@ namespace SukudoSolver.DataType
         /// <summary>
         /// possible values for the unit
         /// </summary>
-        public List<int> PossibleValues { get; } = new();
-
+        // todo delete the init values
+        public List<int> PossibleValues { get; } = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         public int? CurrentValue
         {
             get
             {
                 if (Given != null) return Given;
-                if (CurrentAnswer != null) return CurrentAnswer;
+                if (Answer != null) return Answer;
                 return Assumption;
             }
         }
 
         public Game Game { get; init; }
+
+        public delegate void UnitEventHandler();
+        public event UnitEventHandler OnAssumptionChanged = () => { };
+        public event UnitEventHandler OnAnswerChanged = () => { };
     }
 }

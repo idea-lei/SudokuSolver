@@ -6,19 +6,16 @@ using System.Threading.Tasks;
 
 namespace SukudoSolver.DataType
 {
-    internal class Game
+    public class Game
     {
-        public bool Initalized { get; init; }
+        public bool Initalized { get; private set; }
 
-        public Unit[,] GameBoard { get; init; }
+        public Unit[,] GameBoard { get; private set; }
 
-        public Game(int?[,] givenBoard)
+        public void InitBoard(int?[,] givenBoard)
         {
-            if (givenBoard.GetLength(0) != 9 || givenBoard.GetLength(1) != 9)
-            {
-                Initalized = false;
-                return;
-            }
+            Initalized = false;
+            if (givenBoard.GetLength(0) != 9 || givenBoard.GetLength(1) != 9) return;
 
             GameBoard = new Unit[9, 9];
 
