@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SukudoSolver.Solver
 {
-    internal static class Solver
+    public static class Solver
     {
         /// <summary>
         /// to update possible values of a *unknown* unit
@@ -44,7 +44,13 @@ namespace SukudoSolver.Solver
                 }
 
             unit.PossibleValues.Clear();
-            unit.PossibleValues.AddRange(Enumerable.Range(1, 9).Except(apprentValues));
+            foreach (int v in Enumerable.Range(1, 9).Except(apprentValues))
+                unit.PossibleValues.Add(v);
+        }
+
+        public static bool HasConflict(this Unit unit)
+        {
+            return unit.PossibleValues.Count == 0;
         }
 
         /// <summary>

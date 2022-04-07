@@ -49,13 +49,23 @@ namespace SukudoSolver.DataType
         /// <summary>
         /// assume value for the unit
         /// </summary>
-        public int? Assumption { get; set; }
+        private int? _assumption;
+        public int? Assumption
+        {
+            get => _assumption; set
+            {
+                _assumption = value;
+                OnAssumptionChanged?.Invoke();
+            }
+        }
 
         /// <summary>
         /// possible values for the unit
         /// </summary>
-        // todo delete the init values
-        public List<int> PossibleValues { get; } = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        /// <remarks>
+        /// if both current value and possible values are empty, means the layout is unsolvable
+        /// </remarks>
+        public HashSet<int> PossibleValues { get; } = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         public int? CurrentValue
         {
             get

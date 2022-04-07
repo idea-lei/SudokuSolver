@@ -1,4 +1,5 @@
 ﻿using SukudoSolver.DataType;
+using SukudoSolver.Solver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,8 +92,10 @@ namespace SukudoUI
         /// </summary>
         private void UpdateUnitView(VisualUnit unit)
         {
+            if (unit.Unit == null) return;
             if (unit.Unit.CurrentValue == null)
             {
+                unit.TextBlock.Text = null;
                 foreach (var v in unit.Unit.PossibleValues)
                     unit.TextBlock.Text += v.ToString();
                 unit.TextBlock.Visibility = Visibility.Visible;
@@ -123,12 +126,35 @@ namespace SukudoUI
 
         private void Btn_Test_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var unit in VisualGame) UpdateUnitView(unit);
+            UpdateGameView();
+        }
+
+        private void UpdateGameView()
+        {
+            foreach (var unit in VisualGame)
+            {
+                unit.Unit?.FindPossibleValuesForUnit();
+                UpdateUnitView(unit);
+                if (unit.Unit?.HasConflict() == true)
+                {
+                    MessageBox.Show($"No possible values for unit ({unit.Unit.Coordinate.Item1}, {unit.Unit.Coordinate.Item2})!");
+                    break;
+                }
+            }            
         }
 
         private void Btn_Start_Click(object sender, RoutedEventArgs e)
         {
             InitGame();
+        }
+
+        private void Btn_Reset_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var unit in VisualGame)
+            {
+                unit.TextBlock.Visibility = Visibility.Hidden;
+                unit.TextBox.Visibility = Visibility.Visible;
+            }
         }
     }
 }
