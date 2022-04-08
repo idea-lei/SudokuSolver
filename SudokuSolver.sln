@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SukudoSolver", "SukudoSolver\SukudoSolver.csproj", "{FDE52783-46E4-4FF0-9F06-65E0394BAC97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SudokuSolver", "SukudoSolver\SudokuSolver.csproj", "{FDE52783-46E4-4FF0-9F06-65E0394BAC97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SukudoUI", "SukudoUI\SukudoUI.csproj", "{F05714A3-B881-4696-B202-DF0745C8F0EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SudokuUI", "SukudoUI\SudokuUI.csproj", "{F05714A3-B881-4696-B202-DF0745C8F0EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

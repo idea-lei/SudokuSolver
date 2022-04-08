@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SukudoSolver.DataType
+namespace SudokuSolver.DataType
 {
     public enum UnitValueType
     {

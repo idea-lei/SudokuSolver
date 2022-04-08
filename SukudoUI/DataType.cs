@@ -1,4 +1,4 @@
-﻿using SukudoSolver.DataType;
+﻿using SudokuSolver.DataType;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace SukudoUI
+namespace SudokuUI
 {
     internal class VisualGame: IEnumerable<VisualUnit>
     {

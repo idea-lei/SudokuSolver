@@ -1,11 +1,11 @@
-﻿<Window x:Class="SukudoUI.MainWindow"
+﻿<Window x:Class="SudokuUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SukudoUI"
+        xmlns:local="clr-namespace:SudokuUI"
         mc:Ignorable="d" ResizeMode="CanMinimize"
-        Title="Sukudo" Height="800" Width="730">
+        Title="Sudoku" Height="800" Width="730">
     <StackPanel Margin="8">
         <TextBlock HorizontalAlignment="Right" Text="(0, 8)       "/>
         <Grid x:Name="G_Game">

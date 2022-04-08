@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
-namespace SukudoUI
+namespace SudokuUI
 {
     /// <summary>
     /// Helper class to manipulate visual elements.

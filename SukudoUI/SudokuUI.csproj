@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SukudoSolver\SukudoSolver.csproj" />
+    <ProjectReference Include="..\SukudoSolver\SudokuSolver.csproj" />
   </ItemGroup>
 
 </Project>
