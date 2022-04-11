@@ -53,7 +53,10 @@ namespace SudokuSolver.DataType
                 bool euqal = CurrentValue == value;
                 _answer = value;
                 if (!euqal)
+                {
+                    ClearPossibleValues();
                     OnCurrentValueChanged?.Invoke();
+                }
             }
         }
 

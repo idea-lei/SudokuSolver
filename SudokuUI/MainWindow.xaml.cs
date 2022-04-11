@@ -167,8 +167,8 @@ namespace SudokuUI
         }
 
 
-
-        private void Solve()
+        private IEnumerator<bool> Solver;
+        private IEnumerator<bool> Solve()
         {
             InitPossibleValues();
             bool updated = true;
@@ -176,12 +176,20 @@ namespace SudokuUI
             {
                 updated = false;
                 updated |= VisualGame.Game.UpdateUnits_OnlyOnePossibleValue();
+                if (updated) yield return updated;
 
                 for (int i = 0; i < 9; i++)
                 {
-                    updated |= VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInRow(i);
-                    //updated |= VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInColumn(i);
-                    //updated |= VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInBlock(i / 3, i % 3);
+                    bool uR = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInRow(i);
+                    if (uR) yield return uR;
+
+                    bool uC = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInColumn(i);
+                    if (uC) yield return uC;
+
+                    bool uB = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInBlock(i / 3, i % 3);
+                    if (uB) yield return uB;
+
+                    updated |= uR | uC | uB;
                 }
             }
         }
@@ -190,8 +198,10 @@ namespace SudokuUI
         {
             InitGame();
             Btn_Start.IsEnabled = false;
+            Btn_Solve.IsEnabled = true;
             Btn_Reset.IsEnabled = true;
-            Solve();
+            Btn_Next.IsEnabled = true;
+            Solver = Solve();
         }
 
         private void Btn_Reset_Click(object sender, RoutedEventArgs e)
@@ -200,12 +210,15 @@ namespace SudokuUI
                 unit.Reset();
 
             Btn_Start.IsEnabled = true;
+            Btn_Solve.IsEnabled = false;
             Btn_Reset.IsEnabled = false;
+            Btn_Next.IsEnabled = false;
+            Solver.Dispose();
         }
 
         private void Btn_Clear_Click(object sender, RoutedEventArgs e)
         {
-            foreach(var unit in VisualGame)
+            foreach (var unit in VisualGame)
             {
                 unit.Unit.Given = null;
                 unit.TextBox.BorderBrush = Brushes.Black;
@@ -213,7 +226,25 @@ namespace SudokuUI
                 unit.Reset();
             }
             Btn_Start.IsEnabled = true;
+            Btn_Solve.IsEnabled = false;
             Btn_Reset.IsEnabled = false;
+            Btn_Next.IsEnabled = false;
+            Solver.Dispose();
+        }
+
+        private void Btn_Next_Click(object sender, RoutedEventArgs e)
+        {
+            if (!Solver.MoveNext())
+            {
+                Btn_Next.IsEnabled = false;
+            }
+        }
+
+        private void Btn_Solve_Click(object sender, RoutedEventArgs e)
+        {
+            while (Solver.MoveNext()) { }
+            Btn_Next.IsEnabled = false;
+            Btn_Solve.IsEnabled = false;
         }
     }
 }
