@@ -33,7 +33,7 @@ namespace SudokuSolver.DataType
         /// <summary>
         /// init given value, null for empty (would not use 0 for empty, it could cause misunderstanding)
         /// </summary>
-        public int? Given { get; init; }
+        public int? Given { get; set; }
 
         /// <summary>
         /// confirmed answer, could be more than one possibility
@@ -166,10 +166,9 @@ namespace SudokuSolver.DataType
         }
 
         public Game Game { get; init; }
-
-        public delegate void UnitEventHandler();
-        public event UnitEventHandler? OnCurrentValueChanged;
-        public event UnitEventHandler? OnPossibleValuesChanged;
+        
+        public event Action? OnCurrentValueChanged;
+        public event Action? OnPossibleValuesChanged;
 
         public void Reset()
         {
@@ -179,11 +178,11 @@ namespace SudokuSolver.DataType
             _possibleValues.Clear();
 
             if (OnCurrentValueChanged != null)
-                foreach (UnitEventHandler d in OnCurrentValueChanged.GetInvocationList())
+                foreach (Action d in OnCurrentValueChanged.GetInvocationList())
                     OnCurrentValueChanged -= d;
 
             if (OnPossibleValuesChanged != null)
-                foreach (UnitEventHandler d in OnPossibleValuesChanged.GetInvocationList())
+                foreach (Action d in OnPossibleValuesChanged.GetInvocationList())
                     OnPossibleValuesChanged -= d;
         }
     }

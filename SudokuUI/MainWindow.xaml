@@ -30,7 +30,8 @@
         </Grid>
         <WrapPanel>
             <Button Content="Start" x:Name="Btn_Start" Click="Btn_Start_Click"/>
-            <Button Content="Reset" x:Name="Btn_Reset" Click="Btn_Reset_Click" Background="OrangeRed"/>
+            <Button Content="Reset" x:Name="Btn_Reset" Click="Btn_Reset_Click" Background="OrangeRed" IsEnabled="False"/>
+            <Button Content="Clear" x:Name="Btn_Clear" Click="Btn_Clear_Click" Background="OrangeRed"/>
         </WrapPanel>
     </StackPanel>
 </Window>

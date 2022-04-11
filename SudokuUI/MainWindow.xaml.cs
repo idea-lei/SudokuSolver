@@ -22,8 +22,6 @@ namespace SudokuUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        // matrix of all blocks
-        private Grid[,] Blocks = new Grid[3, 3];
         private VisualGame VisualGame = new();
         public MainWindow()
         {
@@ -72,7 +70,6 @@ namespace SudokuUI
                     Grid.SetColumn(g, j * 2);
                     Grid.SetRow(g, i * 2);
                     G_Game.Children.Add(g);
-                    Blocks[i, j] = g;
                 }
         }
 
@@ -95,7 +92,10 @@ namespace SudokuUI
                 };
                 unit.Unit.OnPossibleValuesChanged += () =>
                 {
-                    UpdateUnitView(unit);
+                    if (unit.Unit.GetPossibleValues().Length > 1)
+                        UpdateUnitView(unit);
+                    else
+                        unit.Unit.UpdateAnswer_OnlyOnePossibleValue();
                 };
             }
         }
@@ -120,16 +120,19 @@ namespace SudokuUI
                 switch (unit.Unit.UnitValueType)
                 {
                     case UnitValueType.Given:
-                        unit.TextBox.BorderBrush = Brushes.Gray;
+                        unit.TextBox.BorderBrush = Brushes.Black;
+                        unit.TextBox.Foreground = Brushes.Black;
                         break;
                     case UnitValueType.Answer:
-                        unit.TextBox.BorderBrush = Brushes.LightBlue;
+                        unit.TextBox.BorderBrush = Brushes.Blue;
+                        unit.TextBox.Foreground = Brushes.Blue;
                         break;
                     case UnitValueType.Assumption:
-                        unit.TextBox.BorderBrush = Brushes.LightYellow;
+                        unit.TextBox.BorderBrush = Brushes.Orange;
+                        unit.TextBox.Foreground = Brushes.Orange;
                         break;
                 }
-                
+
                 unit.TextBlock.Visibility = Visibility.Hidden;
                 unit.TextBox.Visibility = Visibility.Visible;
             }
@@ -163,16 +166,24 @@ namespace SudokuUI
             }
         }
 
-        private void UpdateUnitsWithOnlyOnePossibleValue()
-        {
-            foreach (var unit in VisualGame)
-                unit.Unit?.UpdateAnswerWhenOnlyOnePossibleValue();
-        }
+
 
         private void Solve()
         {
             InitPossibleValues();
-            UpdateUnitsWithOnlyOnePossibleValue();
+            bool updated = true;
+            while (updated)
+            {
+                updated = false;
+                updated |= VisualGame.Game.UpdateUnits_OnlyOnePossibleValue();
+
+                for (int i = 0; i < 9; i++)
+                {
+                    updated |= VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInRow(i);
+                    //updated |= VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInColumn(i);
+                    //updated |= VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInBlock(i / 3, i % 3);
+                }
+            }
         }
 
         private void Btn_Start_Click(object sender, RoutedEventArgs e)
@@ -188,6 +199,19 @@ namespace SudokuUI
             foreach (var unit in VisualGame)
                 unit.Reset();
 
+            Btn_Start.IsEnabled = true;
+            Btn_Reset.IsEnabled = false;
+        }
+
+        private void Btn_Clear_Click(object sender, RoutedEventArgs e)
+        {
+            foreach(var unit in VisualGame)
+            {
+                unit.Unit.Given = null;
+                unit.TextBox.BorderBrush = Brushes.Black;
+                unit.TextBox.Foreground = Brushes.Black;
+                unit.Reset();
+            }
             Btn_Start.IsEnabled = true;
             Btn_Reset.IsEnabled = false;
         }

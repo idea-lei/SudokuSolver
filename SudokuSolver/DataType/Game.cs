@@ -32,5 +32,44 @@ namespace SudokuSolver.DataType
 
             Initalized = true;
         }
+
+        public Unit[] GetRow(int row)
+        {
+            if (!Initalized) return null;
+            if (row < 0 || row > 8) return null;
+
+            Unit[] rowUnits = new Unit[9];
+            for (int i = 0; i < 9; i++)
+                rowUnits[i] = GameBoard[row, i];
+
+            return rowUnits;
+        }
+
+        public Unit[] GetColumn(int column)
+        {
+            if (!Initalized) return null;
+            if (column < 0 || column > 8) return null;
+
+            Unit[] columnUnits = new Unit[9];
+            for (int i = 0; i < 9; i++)
+                columnUnits[i] = GameBoard[i, column];
+
+            return columnUnits;
+        }
+
+        /// <param name="row">block row index, not unit row index</param>
+        /// <param name="column">block column index, not unit column index</param>
+        public Unit[,] GetBlock(int row, int column)
+        {
+            if (!Initalized) return null;
+            if (row < 0 || row > 3 || column < 0 || column > 3) return null;
+
+            Unit[,] blockUnits = new Unit[3, 3];
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    blockUnits[i, j] = GameBoard[row * 3 + i, column * 3 + j];
+
+            return blockUnits;
+        }
     }
 }

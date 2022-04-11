@@ -11,7 +11,7 @@ using System.Windows.Media;
 
 namespace SudokuUI
 {
-    internal class VisualGame: IEnumerable<VisualUnit>
+    internal class VisualGame : IEnumerable<VisualUnit>
     {
         public Game Game { get; set; } = new();
         public TextBox[,] TextBox { get; } = new TextBox[9, 9];
@@ -27,21 +27,50 @@ namespace SudokuUI
             };
         }
 
+        public VisualUnit[] GetRow(int row)
+        {
+            if (row < 0 || row > 8)
+                throw new ArgumentOutOfRangeException(nameof(row));
+
+            var rowUnits = new VisualUnit[9];
+            for (int i = 0; i < 9; i++)
+                rowUnits[i] = this[row, i];
+            return rowUnits;
+        }
+
+        public VisualUnit[] GetColumn(int column)
+        {
+            if (column < 0 || column > 8)
+                throw new ArgumentOutOfRangeException(nameof(column));
+
+            var columnUnits = new VisualUnit[9];
+            for (int i = 0; i < 9; i++)
+                columnUnits[i] = this[i, column];
+            return columnUnits;
+        }
+
+        public VisualUnit[,] GetBlock(int row, int column)
+        {
+            if (row < 0 || row > 3)
+                throw new ArgumentOutOfRangeException(nameof(row));
+            if (column < 0 || column > 3)
+                throw new ArgumentOutOfRangeException(nameof(column));
+
+            var blockUnits = new VisualUnit[3, 3];
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    blockUnits[i, j] = this[row + i, column + j];
+            return blockUnits;
+        }
+
         public IEnumerator<VisualUnit> GetEnumerator()
         {
             for (int x = 0; x < 9; x++)
-            {
                 for (int y = 0; y < 9; y++)
-                {
                     yield return this[x, y];
-                }
-            }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     internal class VisualUnit
