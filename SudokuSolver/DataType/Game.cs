@@ -71,5 +71,18 @@ namespace SudokuSolver.DataType
 
             return blockUnits;
         }
+
+        // only for given value, replace with 0 if not given
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                    sb.Append(GameBoard[i, j].Given?.ToString() ?? "0");
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
     }
 }

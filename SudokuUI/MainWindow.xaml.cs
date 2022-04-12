@@ -1,6 +1,8 @@
-﻿using SudokuSolver.DataType;
+﻿using Microsoft.Win32;
+using SudokuSolver.DataType;
 using SudokuSolver.Solver;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -79,7 +81,11 @@ namespace SudokuUI
             for (int i = 0; i < 9; i++)
                 for (int j = 0; j < 9; j++)
                     if (int.TryParse(VisualGame[i, j].TextBox.Text, out int temp))
-                        mat[i, j] = temp;
+                    {
+                        if (temp == 0)
+                            VisualGame[i, j].TextBox.Text = null;
+                        mat[i, j] = temp != 0 ? temp : null;
+                    }
 
             VisualGame.Game.InitBoard(mat);
             foreach (var unit in VisualGame)
@@ -138,21 +144,6 @@ namespace SudokuUI
             }
         }
 
-        // for testing
-        private string MatrixToString(int?[,] matrix)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 9; i++)
-            {
-                for (int j = 0; j < 9; j++)
-                {
-                    sb.Append(matrix[i, j] == null ? "0" : matrix[i, j].ToString());
-                }
-                sb.AppendLine();
-            }
-            return sb.ToString();
-        }
-
         private void InitPossibleValues()
         {
             foreach (var unit in VisualGame)
@@ -167,8 +158,8 @@ namespace SudokuUI
         }
 
 
-        private IEnumerator<bool> Solver;
-        private IEnumerator<bool> Solve()
+        private IEnumerator? Solver;
+        private IEnumerator Solve()
         {
             InitPossibleValues();
             bool updated = true;
@@ -176,18 +167,18 @@ namespace SudokuUI
             {
                 updated = false;
                 updated |= VisualGame.Game.UpdateUnits_OnlyOnePossibleValue();
-                if (updated) yield return updated;
+                if (updated) yield return null;
 
                 for (int i = 0; i < 9; i++)
                 {
                     bool uR = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInRow(i);
-                    if (uR) yield return uR;
+                    if (uR) yield return null;
 
                     bool uC = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInColumn(i);
-                    if (uC) yield return uC;
+                    if (uC) yield return null;
 
                     bool uB = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInBlock(i / 3, i % 3);
-                    if (uB) yield return uB;
+                    if (uB) yield return null;
 
                     updated |= uR | uC | uB;
                 }
@@ -213,38 +204,54 @@ namespace SudokuUI
             Btn_Solve.IsEnabled = false;
             Btn_Reset.IsEnabled = false;
             Btn_Next.IsEnabled = false;
-            Solver.Dispose();
+            Solver = null;
         }
 
         private void Btn_Clear_Click(object sender, RoutedEventArgs e)
         {
             foreach (var unit in VisualGame)
             {
-                unit.Unit.Given = null;
-                unit.TextBox.BorderBrush = Brushes.Black;
-                unit.TextBox.Foreground = Brushes.Black;
+                if (unit.Unit != null)
+                    unit.Unit.Given = null;
                 unit.Reset();
             }
             Btn_Start.IsEnabled = true;
             Btn_Solve.IsEnabled = false;
             Btn_Reset.IsEnabled = false;
             Btn_Next.IsEnabled = false;
-            Solver.Dispose();
+            Solver = null;
         }
 
         private void Btn_Next_Click(object sender, RoutedEventArgs e)
         {
-            if (!Solver.MoveNext())
-            {
+            if (Solver?.MoveNext() != true)
                 Btn_Next.IsEnabled = false;
-            }
         }
 
         private void Btn_Solve_Click(object sender, RoutedEventArgs e)
         {
-            while (Solver.MoveNext()) { }
+            while (Solver?.MoveNext() == true) { }
             Btn_Next.IsEnabled = false;
             Btn_Solve.IsEnabled = false;
+        }
+
+        private void Btn_Read_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                var mat = VisualHelper.ReadFromFile(openFileDialog.FileName);
+                for (int i = 0; i < 9; i++)
+                    for (int j = 0; j < 9; j++)
+                        VisualGame[i, j].TextBox.Text = mat[i, j]?.ToString();
+            }
+        }
+
+        private void Btn_Write_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            if (saveFileDialog.ShowDialog() == true)
+                VisualGame.WriteToFile(saveFileDialog.FileName);
         }
     }
 }

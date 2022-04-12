@@ -84,6 +84,7 @@ namespace SudokuUI
             if (Unit != null) Unit.Reset();
             TextBox.Text = Unit.CurrentValue.ToString();
             TextBox.BorderBrush = Brushes.Black;
+            TextBox.Foreground = Brushes.Black;
             TextBlock.Visibility = Visibility.Hidden;
             TextBox.Visibility = Visibility.Visible;
         }

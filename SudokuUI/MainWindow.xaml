@@ -5,9 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SudokuUI"
         mc:Ignorable="d" ResizeMode="CanMinimize"
-        Title="Sudoku" Height="800" Width="730">
+        Title="Sudoku" Height="840" Width="730">
     <StackPanel Margin="8">
-        <TextBlock HorizontalAlignment="Right" Text="(0, 8)       "/>
         <Grid x:Name="G_Game">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -28,6 +27,10 @@
             <GridSplitter Grid.Row="1" Grid.ColumnSpan="5" Height="3" HorizontalAlignment="Stretch" IsEnabled="False"/>
             <GridSplitter Grid.Row="3" Grid.ColumnSpan="5" Height="3" HorizontalAlignment="Stretch" IsEnabled="False"/>
         </Grid>
+        <WrapPanel>
+            <Button Content="Read From File" x:Name="Btn_Read" Click="Btn_Read_Click"/>
+            <Button Content="Write To File" x:Name="Btn_Write" Click="Btn_Write_Click"/>
+        </WrapPanel>
         <WrapPanel>
             <Button Content="Start" x:Name="Btn_Start" Click="Btn_Start_Click"/>
             <Button Content="Solve" x:Name="Btn_Solve" ToolTip="One Click for all" Click="Btn_Solve_Click" IsEnabled="False"/>
