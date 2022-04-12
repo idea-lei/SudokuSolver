@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections;
+using System.Text;
 
 namespace SudokuSolver.DataType;
 
@@ -21,7 +22,7 @@ public class Game
                 GameBoard[i, j] = new Unit()
                 {
                     Given = givenBoard[i, j],
-                    Coordinate = (i, j),
+                    Position = (i, j),
                     Game = this
                 };
             }

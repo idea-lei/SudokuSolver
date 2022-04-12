@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using SudokuSolver.Solver;
 using System.Collections;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -78,23 +79,19 @@ namespace SudokuUI
             foreach (var unit in VisualGame)
             {
                 if (unit.Unit == null) return;
-                unit.Unit.OnCurrentValueChanged += () =>
-                {
-                    unit.UpdateUnitView();
-                    unit.Unit.UpdatePossiableValuesForRelevantUnits();
-                };
-                unit.Unit.OnPossibleValuesChanged += () => unit.UpdateUnitView();
+                unit.Unit.OnCurrentValueChanged += unit.UpdateUnitView;
+                unit.Unit.OnPossibleValuesChanged += unit.UpdateUnitView;
             }
         }
 
         private IEnumerator? Solver;
-        private IEnumerator Solve()
+
+        /// <summary>
+        /// solve the units that no need to assume a value
+        /// </summary>
+        private IEnumerator Solve_Basic()
         {
-            InitPossibleValues();
-            yield return null;
             bool updated = true;
-            
-            // solve the units that no need to assume a value
             while (updated)
             {
                 updated = false;
@@ -119,6 +116,14 @@ namespace SudokuUI
                     updated |= uR | uC | uB;
                 }
             }
+        }
+        private IEnumerator Solve()
+        {
+            InitPossibleValues();
+            yield return null;
+
+            while (Solve_Basic().MoveNext())
+                yield return null;
 
             if (VisualGame.Game.IsSolved())
             {
@@ -127,7 +132,27 @@ namespace SudokuUI
             }
 
             // solve the units that need to assume a value
-            var assumptionTree = new AssumptionNode(VisualGame.Game);
+
+            // the first unit with min possible value count
+            VisualUnit? mU = null;
+            foreach (var u in VisualGame)
+            {
+                if (u?.Unit?.CurrentValue != null) continue;
+                if (mU == null ||
+                    mU?.Unit?.GetPossibleValues().Length > u?.Unit?.GetPossibleValues().Length)
+                {
+                    mU = u;
+                    continue;
+                }
+            }
+
+            // assume the value
+            if (mU?.Unit == null)
+            {
+                MessageBox.Show("No solution!");
+                yield break;
+            }
+            mU.Unit.Assumption = mU.Unit.GetPossibleValues().First();
         }
 
         private void Btn_Start_Click(object sender, RoutedEventArgs e)
@@ -197,7 +222,7 @@ namespace SudokuUI
             if (saveFileDialog.ShowDialog() == true)
                 VisualGame.WriteToFile(saveFileDialog.FileName);
         }
-        
+
         private void InitPossibleValues()
         {
             foreach (var unit in VisualGame)
@@ -205,7 +230,7 @@ namespace SudokuUI
                 unit.Unit?.InitPossibleValues();
                 if (unit.Unit?.HasConflict() == true)
                 {
-                    MessageBox.Show($"No possible values for unit ({unit.Unit.Coordinate.Item1}, {unit.Unit.Coordinate.Item2})!");
+                    MessageBox.Show($"No possible values for unit ({unit.Unit.Position.Item1}, {unit.Unit.Position.Item2})!");
                     break;
                 }
             }

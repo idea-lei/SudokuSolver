@@ -8,9 +8,17 @@ namespace SudokuSolver.DataType
 {
     public class AssumptionNode
     {
-        public Unit Unit { get; init; }
-        public Unit? Parent { get; init; }
-        public HashSet<Unit> Children { get; } = new();
-        public AssumptionNode(Unit unit) => Unit = unit;
+        public (int, int) Position { get; init; }
+        public int[] Assumptions { get; init; }
+        public Game[] Games { get; }
+        public AssumptionNode(Unit unit, Game game)
+        {
+            Position = unit.Position;
+            Assumptions = unit.GetPossibleValues();
+            Games = new Game[Assumptions.Length];
+            for (int i = 0; i < Assumptions.Length; i++)
+            {
+            }
+        }
     }
 }
