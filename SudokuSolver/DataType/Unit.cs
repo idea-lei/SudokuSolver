@@ -32,12 +32,12 @@
         public int? Given { get; set; }
 
         /// <summary>
-        /// confirmed answer, could be more than one possibility
-        /// the sequence should be identical to other unit
+        /// one of the possible answer from answer tree
         /// </summary>
-        public List<int> Answers { get; } = new();
-
-        public int CurrentOptionalAnswer { get; set; }
+        /// <remarks>
+        /// check AssumptionNode for more info
+        /// </remarks>
+        public int? OptionalAnswer { get; set; }
 
         /// <summary>
         /// The only Answer
@@ -81,10 +81,28 @@
                 if (Given.HasValue) return UnitValueType.Given;
                 if (Answer.HasValue) return UnitValueType.Answer;
                 if (Assumption.HasValue) return UnitValueType.Assumption;
+                if (OptionalAnswer.HasValue) return UnitValueType.OptionalAnswer;
                 if (HasConflict()) return UnitValueType.Conflict;
                 return UnitValueType.None;
             }
         }
+
+        public int? CurrentValue
+        {
+            get
+            {
+                if (Given.HasValue) return Given;
+                if (Answer.HasValue) return Answer;
+                if (Assumption.HasValue) return Assumption;
+                if (OptionalAnswer.HasValue) return OptionalAnswer;
+                return null;
+            }
+        }
+
+        public Game Game { get; init; }
+
+        public event Action? OnCurrentValueChanged;
+        public event Action? OnPossibleValuesChanged;
 
         /// <summary>
         /// possible values for the unit
@@ -157,28 +175,12 @@
             OnPossibleValuesChanged?.Invoke();
         }
 
-        public bool HasConflict() => 
+        public bool HasConflict() =>
             GetPossibleValues().Length == 0 && CurrentValue == null;
-
-        public int? CurrentValue
-        {
-            get
-            {
-                if (Given != null) return Given;
-                if (Answer != null) return Answer;
-                return Assumption;
-            }
-        }
-
-        public Game Game { get; init; }
-
-        public event Action? OnCurrentValueChanged;
-        public event Action? OnPossibleValuesChanged;
 
         public void Reset()
         {
             Assumption = null;
-            Answers.Clear();
             Answer = null;
             _possibleValues.Clear();
 

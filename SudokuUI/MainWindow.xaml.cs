@@ -119,8 +119,15 @@ namespace SudokuUI
                     updated |= uR | uC | uB;
                 }
             }
-            
-            
+
+            if (VisualGame.Game.IsSolved())
+            {
+                MessageBox.Show("Solved!");
+                yield break;
+            }
+
+            // solve the units that need to assume a value
+            var assumptionTree = new AssumptionNode(VisualGame.Game);
         }
 
         private void Btn_Start_Click(object sender, RoutedEventArgs e)

@@ -12,6 +12,14 @@ namespace SudokuSolver.Solver
             return false;
         }
 
+        public static bool IsSolved(this Game game)
+        {
+            foreach (var unit in game.GameBoard)
+                if (unit.CurrentValue == null)
+                    return false;
+            return true;
+        }
+
         /// <summary>
         /// update the unit if only one possible value in it
         /// </summary>

@@ -87,10 +87,3 @@ public class Game
         return sb.ToString();
     }
 }
-
-// to build the assumption tree
-public class AssumptionNode
-{
-    
-}
-
