@@ -83,13 +83,7 @@ namespace SudokuUI
                     unit.UpdateUnitView();
                     unit.Unit.UpdatePossiableValuesForRelevantUnits();
                 };
-                unit.Unit.OnPossibleValuesChanged += () =>
-                {
-                    if (unit.Unit.GetPossibleValues().Length > 1)
-                        unit.UpdateUnitView();
-                    else
-                        unit.Unit.UpdateAnswer_OnlyOnePossibleValue();
-                };
+                unit.Unit.OnPossibleValuesChanged += () => unit.UpdateUnitView();
             }
         }
 
@@ -97,23 +91,28 @@ namespace SudokuUI
         private IEnumerator Solve()
         {
             VisualGame.InitPossibleValues();
+            yield return null;
             bool updated = true;
             while (updated)
             {
                 updated = false;
                 updated |= VisualGame.Game.UpdateUnits_OnlyOnePossibleValue();
-                if (updated) yield return null;
+                if (updated)
+                    yield return null;
 
                 for (int i = 0; i < 9; i++)
                 {
                     bool uR = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInRow(i);
-                    if (uR) yield return null;
+                    if (uR)
+                        yield return null;
 
                     bool uC = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInColumn(i);
-                    if (uC) yield return null;
+                    if (uC)
+                        yield return null;
 
                     bool uB = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInBlock(i / 3, i % 3);
-                    if (uB) yield return null;
+                    if (uB)
+                        yield return null;
 
                     updated |= uR | uC | uB;
                 }
