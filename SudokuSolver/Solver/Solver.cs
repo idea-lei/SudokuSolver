@@ -1,9 +1,4 @@
 ﻿using SudokuSolver.DataType;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SudokuSolver.Solver
 {
@@ -14,6 +9,9 @@ namespace SudokuSolver.Solver
             return unit.GetPossibleValues().Length == 0 && unit.CurrentValue == null;
         }
 
+        /// <summary>
+        /// update the unit if only one possible value in it
+        /// </summary>
         public static bool UpdateAnswer_OnlyOnePossibleValue(this Unit unit)
         {
             bool canUpdate = false;
@@ -33,30 +31,24 @@ namespace SudokuSolver.Solver
             foreach (var unit in game.GameBoard)
                 canUpdate |= unit?.UpdateAnswer_OnlyOnePossibleValue() == true;
             return canUpdate;
-        }        
+        }
 
-        /// <summary>
-        /// call this method to check if a possiable value only appears once in row,
-        /// there is no other option for the corresponding unit.
-        /// </summary>
-        public static bool UpdateAnswer_OnlyOnePossibleValueInRow(this Game game, int row)
+        private static bool UpdateAnswer_OnlyOnePossibleValue(Unit[] units)
         {
-            bool canUpdate = false;
-            var rowUnits = game.GetRow(row);
             HashSet<int> possibleValues = new();
+            bool canUpdate = false;
 
-            // gather all possible values in row
-            foreach (var unit in rowUnits)
+            foreach (var unit in units)
                 foreach (var v in unit.GetPossibleValues())
                     possibleValues.Add(v);
 
             // count the appearance of each value and update if only one
             foreach (var v in possibleValues)
             {
-                var count = rowUnits.Count(u => u.GetPossibleValues().Contains(v));
+                var count = units.Count(u => u.GetPossibleValues().Contains(v));
                 if (count == 1)
                 {
-                    var unit = rowUnits.First(u => u.GetPossibleValues().Contains(v));
+                    var unit = units.First(u => u.GetPossibleValues().Contains(v));
                     unit.Answer = v;
                     canUpdate = true;
                 }
@@ -65,58 +57,22 @@ namespace SudokuSolver.Solver
         }
 
         /// <summary>
-        /// call this method to check if a possiable value only appears once in column,
-        /// there is no other option for the corresponding unit.
+        /// call this method to check if a possiable value only appears once in row
         /// </summary>
-        public static bool UpdateAnswer_OnlyOnePossibleValueInColumn(this Game game, int column)
-        {
-            bool canUpdate = false;
-            var columnUnits = game.GetColumn(column);
-            HashSet<int> possibleValues = new();
+        public static bool UpdateAnswer_OnlyOnePossibleValueInRow(this Game game, int row) =>
+            UpdateAnswer_OnlyOnePossibleValue(game.GetRow(row));
 
-            // gather all possible values in column
-            foreach (var unit in columnUnits)
-                foreach (var v in unit.GetPossibleValues())
-                    possibleValues.Add(v);
+        /// <summary>
+        /// call this method to check if a possiable value only appears once in column
+        /// </summary>
+        public static bool UpdateAnswer_OnlyOnePossibleValueInColumn(this Game game, int column)=>
+            UpdateAnswer_OnlyOnePossibleValue(game.GetColumn(column));
 
-            // count the appearance of each value and update if only one
-            foreach (var v in possibleValues)
-            {
-                var count = columnUnits.Count(u => u.GetPossibleValues().Contains(v));
-                if (count == 1)
-                {
-                    var unit = columnUnits.First(u => u.GetPossibleValues().Contains(v));
-                    unit.Answer = v;
-                    canUpdate = true;
-                }
-            }
-            return canUpdate;
-        }
-
-        public static bool UpdateAnswer_OnlyOnePossibleValueInBlock(this Game game, int row, int column)
-        {
-            bool canUpdate = false;
-            var blockUnits = game.GetBlock(row, column).Flatten();
-            HashSet<int> possibleValues = new();
-
-            // gather all possible values in block
-            foreach (var unit in blockUnits)
-                foreach (var v in unit.GetPossibleValues())
-                    possibleValues.Add(v);
-
-            // count the appearance of each value and update if only one
-            foreach (var v in possibleValues)
-            {
-                var count = blockUnits.Count(u => u.GetPossibleValues().Contains(v));
-                if (count == 1)
-                {
-                    var unit = blockUnits.First(u => u.GetPossibleValues().Contains(v));
-                    unit.Answer = v;
-                    canUpdate = true;
-                }
-            }
-            return canUpdate;
-        }
+        /// <summary>
+        /// call this method to check if a possiable value only appears once in block
+        /// </summary>
+        public static bool UpdateAnswer_OnlyOnePossibleValueInBlock(this Game game, int row, int column) =>
+            UpdateAnswer_OnlyOnePossibleValue(game.GetBlock(row, column).Flatten().ToArray());
 
         /// <summary>
         /// after updating the current value of the unit, update relevant units possible values (in row, column and block)

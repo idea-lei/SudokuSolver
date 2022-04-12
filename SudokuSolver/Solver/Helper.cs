@@ -1,11 +1,4 @@
-﻿using SudokuSolver.DataType;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SudokuSolver.Solver
+﻿namespace SudokuSolver.Solver
 {
     internal static class Helper
     {

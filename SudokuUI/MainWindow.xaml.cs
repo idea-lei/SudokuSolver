@@ -1,21 +1,8 @@
 ﻿using Microsoft.Win32;
-using SudokuSolver.DataType;
 using SudokuSolver.Solver;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace SudokuUI
 {
@@ -93,75 +80,23 @@ namespace SudokuUI
                 if (unit.Unit == null) return;
                 unit.Unit.OnCurrentValueChanged += () =>
                 {
-                    UpdateUnitView(unit);
+                    unit.UpdateUnitView();
                     unit.Unit.UpdatePossiableValuesForRelevantUnits();
                 };
                 unit.Unit.OnPossibleValuesChanged += () =>
                 {
                     if (unit.Unit.GetPossibleValues().Length > 1)
-                        UpdateUnitView(unit);
+                        unit.UpdateUnitView();
                     else
                         unit.Unit.UpdateAnswer_OnlyOnePossibleValue();
                 };
             }
         }
 
-        /// <summary>
-        /// if the current value of the unit is null, show the possible values, otherwise show the current value
-        /// </summary>
-        private void UpdateUnitView(VisualUnit unit)
-        {
-            if (unit.Unit == null) return;
-            if (unit.Unit.CurrentValue == null)
-            {
-                unit.TextBlock.Text = null;
-                foreach (var v in unit.Unit.GetPossibleValues())
-                    unit.TextBlock.Text += v.ToString();
-                unit.TextBlock.Visibility = Visibility.Visible;
-                unit.TextBox.Visibility = Visibility.Hidden;
-            }
-            else
-            {
-                unit.TextBox.Text = unit.Unit.CurrentValue.ToString();
-                switch (unit.Unit.UnitValueType)
-                {
-                    case UnitValueType.Given:
-                        unit.TextBox.BorderBrush = Brushes.Black;
-                        unit.TextBox.Foreground = Brushes.Black;
-                        break;
-                    case UnitValueType.Answer:
-                        unit.TextBox.BorderBrush = Brushes.Blue;
-                        unit.TextBox.Foreground = Brushes.Blue;
-                        break;
-                    case UnitValueType.Assumption:
-                        unit.TextBox.BorderBrush = Brushes.Orange;
-                        unit.TextBox.Foreground = Brushes.Orange;
-                        break;
-                }
-
-                unit.TextBlock.Visibility = Visibility.Hidden;
-                unit.TextBox.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void InitPossibleValues()
-        {
-            foreach (var unit in VisualGame)
-            {
-                unit.Unit?.InitPossibleValues();
-                if (unit.Unit?.HasConflict() == true)
-                {
-                    MessageBox.Show($"No possible values for unit ({unit.Unit.Coordinate.Item1}, {unit.Unit.Coordinate.Item2})!");
-                    break;
-                }
-            }
-        }
-
-
         private IEnumerator? Solver;
         private IEnumerator Solve()
         {
-            InitPossibleValues();
+            VisualGame.InitPossibleValues();
             bool updated = true;
             while (updated)
             {
@@ -195,26 +130,21 @@ namespace SudokuUI
             Solver = Solve();
         }
 
-        private void Btn_Reset_Click(object sender, RoutedEventArgs e)
-        {
-            foreach (var unit in VisualGame)
-                unit.Reset();
-
-            Btn_Start.IsEnabled = true;
-            Btn_Solve.IsEnabled = false;
-            Btn_Reset.IsEnabled = false;
-            Btn_Next.IsEnabled = false;
-            Solver = null;
-        }
+        private void Btn_Reset_Click(object sender, RoutedEventArgs e) => Reset();
 
         private void Btn_Clear_Click(object sender, RoutedEventArgs e)
         {
             foreach (var unit in VisualGame)
-            {
                 if (unit.Unit != null)
                     unit.Unit.Given = null;
+            Reset();
+        }
+
+        private void Reset()
+        {
+            foreach (var unit in VisualGame)
                 unit.Reset();
-            }
+
             Btn_Start.IsEnabled = true;
             Btn_Solve.IsEnabled = false;
             Btn_Reset.IsEnabled = false;
@@ -222,10 +152,14 @@ namespace SudokuUI
             Solver = null;
         }
 
+
         private void Btn_Next_Click(object sender, RoutedEventArgs e)
         {
             if (Solver?.MoveNext() != true)
+            {
                 Btn_Next.IsEnabled = false;
+                Btn_Solve.IsEnabled = false;
+            }
         }
 
         private void Btn_Solve_Click(object sender, RoutedEventArgs e)
@@ -249,7 +183,7 @@ namespace SudokuUI
 
         private void Btn_Write_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            var saveFileDialog = new SaveFileDialog();
             if (saveFileDialog.ShowDialog() == true)
                 VisualGame.WriteToFile(saveFileDialog.FileName);
         }

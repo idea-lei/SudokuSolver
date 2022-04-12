@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace SudokuSolver.DataType
 {
@@ -35,8 +31,10 @@ namespace SudokuSolver.DataType
 
         public Unit[] GetRow(int row)
         {
-            if (!Initalized) return null;
-            if (row < 0 || row > 8) return null;
+            if (!Initalized) 
+                throw new Exception("Game not initalized");
+            if (row < 0 || row > 8)
+                throw new Exception("Row out of range");
 
             Unit[] rowUnits = new Unit[9];
             for (int i = 0; i < 9; i++)
@@ -47,8 +45,10 @@ namespace SudokuSolver.DataType
 
         public Unit[] GetColumn(int column)
         {
-            if (!Initalized) return null;
-            if (column < 0 || column > 8) return null;
+            if (!Initalized)
+                throw new Exception("Game not initalized");
+            if (column < 0 || column > 8)
+                throw new Exception("Column out of range");
 
             Unit[] columnUnits = new Unit[9];
             for (int i = 0; i < 9; i++)
@@ -61,8 +61,10 @@ namespace SudokuSolver.DataType
         /// <param name="column">block column index, not unit column index</param>
         public Unit[,] GetBlock(int row, int column)
         {
-            if (!Initalized) return null;
-            if (row < 0 || row > 3 || column < 0 || column > 3) return null;
+            if (!Initalized) 
+                throw new Exception("Game not initalized");
+            if (row < 0 || row > 3 || column < 0 || column > 3) 
+                throw new Exception("Invalid block index");
 
             Unit[,] blockUnits = new Unit[3, 3];
             for (int i = 0; i < 3; i++)
