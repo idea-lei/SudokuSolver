@@ -4,6 +4,7 @@
     {
         Given,
         Answer,
+        OptionalAnswer,
         Assumption,
         Conflict,
         None
@@ -36,8 +37,10 @@
         /// </summary>
         public List<int> Answers { get; } = new();
 
+        public int CurrentOptionalAnswer { get; set; }
+
         /// <summary>
-        /// Current Answer
+        /// The only Answer
         /// </summary>
         private int? _answer;
         public int? Answer
@@ -78,6 +81,7 @@
                 if (Given.HasValue) return UnitValueType.Given;
                 if (Answer.HasValue) return UnitValueType.Answer;
                 if (Assumption.HasValue) return UnitValueType.Assumption;
+                if (HasConflict()) return UnitValueType.Conflict;
                 return UnitValueType.None;
             }
         }
@@ -95,18 +99,18 @@
         {
             bool changed = false;
             foreach (int v in values)
-                if (_possibleValues.Add(v)) 
+                if (_possibleValues.Add(v))
                     changed = true;
-            if (changed) 
+            if (changed)
                 OnPossibleValuesChanged?.Invoke();
         }
         public void RemovePossibleValues(params int[] values)
         {
             bool changed = false;
             foreach (int v in values)
-                if (_possibleValues.Remove(v)) 
+                if (_possibleValues.Remove(v))
                     changed = true;
-            if (changed) 
+            if (changed)
                 OnPossibleValuesChanged?.Invoke();
         }
         public void ClearPossibleValues()
@@ -153,6 +157,9 @@
             OnPossibleValuesChanged?.Invoke();
         }
 
+        public bool HasConflict() => 
+            GetPossibleValues().Length == 0 && CurrentValue == null;
+
         public int? CurrentValue
         {
             get
@@ -164,7 +171,7 @@
         }
 
         public Game Game { get; init; }
-        
+
         public event Action? OnCurrentValueChanged;
         public event Action? OnPossibleValuesChanged;
 

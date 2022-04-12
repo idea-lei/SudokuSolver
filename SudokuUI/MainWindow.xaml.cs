@@ -90,9 +90,11 @@ namespace SudokuUI
         private IEnumerator? Solver;
         private IEnumerator Solve()
         {
-            VisualGame.InitPossibleValues();
+            InitPossibleValues();
             yield return null;
             bool updated = true;
+            
+            // solve the units that no need to assume a value
             while (updated)
             {
                 updated = false;
@@ -117,6 +119,8 @@ namespace SudokuUI
                     updated |= uR | uC | uB;
                 }
             }
+            
+            
         }
 
         private void Btn_Start_Click(object sender, RoutedEventArgs e)
@@ -173,7 +177,7 @@ namespace SudokuUI
             var openFileDialog = new OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
-                var mat = VisualHelper.ReadFromFile(openFileDialog.FileName);
+                var mat = IOHelper.ReadFromFile(openFileDialog.FileName);
                 for (int i = 0; i < 9; i++)
                     for (int j = 0; j < 9; j++)
                         VisualGame[i, j].TextBox.Text = mat[i, j]?.ToString();
@@ -185,6 +189,19 @@ namespace SudokuUI
             var saveFileDialog = new SaveFileDialog();
             if (saveFileDialog.ShowDialog() == true)
                 VisualGame.WriteToFile(saveFileDialog.FileName);
+        }
+        
+        private void InitPossibleValues()
+        {
+            foreach (var unit in VisualGame)
+            {
+                unit.Unit?.InitPossibleValues();
+                if (unit.Unit?.HasConflict() == true)
+                {
+                    MessageBox.Show($"No possible values for unit ({unit.Unit.Coordinate.Item1}, {unit.Unit.Coordinate.Item2})!");
+                    break;
+                }
+            }
         }
     }
 }

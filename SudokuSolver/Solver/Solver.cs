@@ -4,9 +4,12 @@ namespace SudokuSolver.Solver
 {
     public static class Solver
     {
-        public static bool HasConflict(this Unit unit)
+        public static bool HasConflict(this Game game)
         {
-            return unit.GetPossibleValues().Length == 0 && unit.CurrentValue == null;
+            foreach (var unit in game.GameBoard)
+                if (unit.HasConflict())
+                    return true;
+            return false;
         }
 
         /// <summary>
@@ -65,7 +68,7 @@ namespace SudokuSolver.Solver
         /// <summary>
         /// call this method to check if a possiable value only appears once in column
         /// </summary>
-        public static bool UpdateAnswer_OnlyOnePossibleValueInColumn(this Game game, int column)=>
+        public static bool UpdateAnswer_OnlyOnePossibleValueInColumn(this Game game, int column) =>
             UpdateAnswer_OnlyOnePossibleValue(game.GetColumn(column));
 
         /// <summary>

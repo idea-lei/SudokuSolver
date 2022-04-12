@@ -27,47 +27,13 @@ namespace SudokuUI
             }
         }
 
-        internal static void WriteToFile(this VisualGame game, string fileName)
-        {
-            StringBuilder sb = new();
-            for(int i = 0; i < 9; i++)
-            {
-                for (int j = 0; j < 9; j++)
-                {
-                    string s = game[i, j].TextBox.Text;
-                    s = string.IsNullOrEmpty(s) ? "0" : s;
-                    sb.Append(s ?? "0");
-                }
-                sb.AppendLine();
-            }
-            File.WriteAllText(fileName, sb.ToString());
-        }
-
-        internal static int?[,] ReadFromFile(string fileName)
-        {
-            string[] content = File.ReadAllLines(fileName);
-            if (content.Length != 9)
-                throw new Exception("Invalid file format");
-            int?[,] map = new int?[9, 9];
-            for (int i = 0; i < 9; i++)
-            {
-                string row = content[i];
-                if (row.Length != 9)
-                    throw new Exception("Invalid file format");
-                for (int j = 0; j < 9; j++)
-                    if (int.TryParse(row[j].ToString(), out int value))
-                        map[i, j] = value == 0 ? null : value;
-            }
-            return map;
-        }
-
         /// <summary>
         /// if the current value of the unit is null, show the possible values, otherwise show the current value
         /// </summary>
         internal static void UpdateUnitView(this VisualUnit unit)
         {
             if (unit.Unit == null) return;
-            if (unit.Unit.CurrentValue == null)
+            if (unit.Unit.CurrentValue == null && !unit.Unit.HasConflict())
             {
                 unit.TextBlock.Text = null;
                 foreach (var v in unit.Unit.GetPossibleValues())
@@ -78,37 +44,29 @@ namespace SudokuUI
             else
             {
                 unit.TextBox.Text = unit.Unit.CurrentValue.ToString();
-                switch (unit.Unit.UnitValueType)
-                {
-                    case UnitValueType.Given:
-                        unit.TextBox.BorderBrush = Brushes.Black;
-                        unit.TextBox.Foreground = Brushes.Black;
-                        break;
-                    case UnitValueType.Answer:
-                        unit.TextBox.BorderBrush = Brushes.Blue;
-                        unit.TextBox.Foreground = Brushes.Blue;
-                        break;
-                    case UnitValueType.Assumption:
-                        unit.TextBox.BorderBrush = Brushes.Orange;
-                        unit.TextBox.Foreground = Brushes.Orange;
-                        break;
-                }
-
+                
                 unit.TextBlock.Visibility = Visibility.Hidden;
                 unit.TextBox.Visibility = Visibility.Visible;
             }
-        }
-
-        internal static void InitPossibleValues(this VisualGame VisualGame)
-        {
-            foreach (var unit in VisualGame)
+            
+            switch (unit.Unit.UnitValueType)
             {
-                unit.Unit?.InitPossibleValues();
-                if (unit.Unit?.HasConflict() == true)
-                {
-                    MessageBox.Show($"No possible values for unit ({unit.Unit.Coordinate.Item1}, {unit.Unit.Coordinate.Item2})!");
+                case UnitValueType.Given:
+                    unit.TextBox.BorderBrush = Brushes.Black;
+                    unit.TextBox.Foreground = Brushes.Black;
                     break;
-                }
+                case UnitValueType.Answer:
+                    unit.TextBox.BorderBrush = Brushes.Blue;
+                    unit.TextBox.Foreground = Brushes.Blue;
+                    break;
+                case UnitValueType.Assumption:
+                    unit.TextBox.BorderBrush = Brushes.Green;
+                    unit.TextBox.Foreground = Brushes.Green;
+                    break;
+                case UnitValueType.Conflict:
+                    unit.TextBox.BorderBrush = Brushes.Red;
+                    unit.TextBox.Foreground = Brushes.Red;
+                    break;
             }
         }
     }
