@@ -122,6 +122,8 @@ namespace SudokuUI
                 unit.Reset();
 
             Tb_AnswerAmount.Visibility = Visibility.Hidden;
+            Tb_AnswerAmount.Text = null;
+            currentAnswerIndex = 0;
             Btn_Start.IsEnabled = true;
             Btn_Solve.IsEnabled = false;
             Btn_Reset.IsEnabled = false;
@@ -159,6 +161,15 @@ namespace SudokuUI
             if (Answers.Count == 1)
             {
                 ShowAnswer(Answers[0]);
+                foreach (var unit in VisualGame)
+                {
+                    int? oA = unit.Unit.OptionalAnswer;
+                    if (unit.Unit.Answer == null)
+                    {
+                        unit.Unit.OptionalAnswer = null;
+                        unit.Unit.Answer = oA;
+                    }
+                }
             }
 
             if (Answers.Count > 1)
