@@ -3,11 +3,13 @@ using System.Text;
 
 namespace SudokuSolver.DataType;
 
-public class Game
+public class Game: IEnumerable<Unit>
 {
     public bool Initalized { get; private set; }
 
     public Unit[,] GameBoard { get; private set; }
+
+    public Unit? this[int x, int y] => GameBoard?[x, y];
 
     public void InitBoard(int?[,] givenBoard)
     {
@@ -28,6 +30,18 @@ public class Game
             }
 
         Initalized = true;
+    }
+
+    /// <returns>true if success, false if has conflict</returns>
+    public bool InitPossibleValues()
+    {
+        foreach (var unit in this)
+        {
+            unit.InitPossibleValues();
+            if (unit.HasConflict() == true)
+                return false;
+        }
+        return true;
     }
 
     public Unit[] GetRow(int row)
@@ -75,6 +89,14 @@ public class Game
         return blockUnits;
     }
 
+    public int?[,] GetCurrentBoard() {
+        int?[,] board = new int?[9, 9];
+        for (int i = 0; i < 9; i++)
+            for (int j = 0; j < 9; j++)
+                board[i, j] = GameBoard[i, j].CurrentValue;
+        return board;
+    }
+
     // only for given value, replace with 0 if not given
     public override string ToString()
     {
@@ -87,4 +109,13 @@ public class Game
         }
         return sb.ToString();
     }
+
+    public IEnumerator<Unit> GetEnumerator()
+    {
+        for (int x = 0; x < 9; x++)
+            for (int y = 0; y < 9; y++)
+                yield return this[x, y];
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

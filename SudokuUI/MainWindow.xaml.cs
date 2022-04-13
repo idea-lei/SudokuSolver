@@ -1,6 +1,8 @@
 ﻿using Microsoft.Win32;
+using SudokuSolver.DataType;
 using SudokuSolver.Solver;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +15,7 @@ namespace SudokuUI
     public partial class MainWindow : Window
     {
         private VisualGame VisualGame = new();
+        private List<Game> Answers = new();
         public MainWindow()
         {
             InitializeComponent();
@@ -63,6 +66,16 @@ namespace SudokuUI
                 }
         }
 
+        private void InitEvents()
+        {
+            foreach (var unit in VisualGame)
+            {
+                if (unit.Unit == null) return;
+                unit.Unit.OnCurrentValueChanged += unit.UpdateUnitView;
+                unit.Unit.OnPossibleValuesChanged += unit.UpdateUnitView;
+            }
+        }
+
         private void InitGame()
         {
             int?[,] mat = new int?[9, 9];
@@ -76,84 +89,11 @@ namespace SudokuUI
                     }
 
             VisualGame.Game.InitBoard(mat);
-            foreach (var unit in VisualGame)
-            {
-                if (unit.Unit == null) return;
-                unit.Unit.OnCurrentValueChanged += unit.UpdateUnitView;
-                unit.Unit.OnPossibleValuesChanged += unit.UpdateUnitView;
-            }
+            InitEvents();
+            VisualGame.Game.InitPossibleValues();
         }
 
         private IEnumerator? Solver;
-
-        /// <summary>
-        /// solve the units that no need to assume a value
-        /// </summary>
-        private IEnumerator Solve_Basic()
-        {
-            bool updated = true;
-            while (updated)
-            {
-                updated = false;
-                updated |= VisualGame.Game.UpdateUnits_OnlyOnePossibleValue();
-                if (updated)
-                    yield return null;
-
-                for (int i = 0; i < 9; i++)
-                {
-                    bool uR = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInRow(i);
-                    if (uR)
-                        yield return null;
-
-                    bool uC = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInColumn(i);
-                    if (uC)
-                        yield return null;
-
-                    bool uB = VisualGame.Game.UpdateAnswer_OnlyOnePossibleValueInBlock(i / 3, i % 3);
-                    if (uB)
-                        yield return null;
-
-                    updated |= uR | uC | uB;
-                }
-            }
-        }
-        private IEnumerator Solve()
-        {
-            InitPossibleValues();
-            yield return null;
-
-            while (Solve_Basic().MoveNext())
-                yield return null;
-
-            if (VisualGame.Game.IsSolved())
-            {
-                MessageBox.Show("Solved!");
-                yield break;
-            }
-
-            // solve the units that need to assume a value
-
-            // the first unit with min possible value count
-            VisualUnit? mU = null;
-            foreach (var u in VisualGame)
-            {
-                if (u?.Unit?.CurrentValue != null) continue;
-                if (mU == null ||
-                    mU?.Unit?.GetPossibleValues().Length > u?.Unit?.GetPossibleValues().Length)
-                {
-                    mU = u;
-                    continue;
-                }
-            }
-
-            // assume the value
-            if (mU?.Unit == null)
-            {
-                MessageBox.Show("No solution!");
-                yield break;
-            }
-            mU.Unit.Assumption = mU.Unit.GetPossibleValues().First();
-        }
 
         private void Btn_Start_Click(object sender, RoutedEventArgs e)
         {
@@ -162,7 +102,7 @@ namespace SudokuUI
             Btn_Solve.IsEnabled = true;
             Btn_Reset.IsEnabled = true;
             Btn_Next.IsEnabled = true;
-            Solver = Solve();
+            Solver = VisualGame.Game.Solve(Answers);
         }
 
         private void Btn_Reset_Click(object sender, RoutedEventArgs e) => Reset();
@@ -177,6 +117,7 @@ namespace SudokuUI
 
         private void Reset()
         {
+            Answers.Clear();
             foreach (var unit in VisualGame)
                 unit.Reset();
 
@@ -184,6 +125,8 @@ namespace SudokuUI
             Btn_Solve.IsEnabled = false;
             Btn_Reset.IsEnabled = false;
             Btn_Next.IsEnabled = false;
+            Btn_Forward.IsEnabled = false;
+            Btn_Previous.IsEnabled = false;
             Solver = null;
         }
 
@@ -199,9 +142,24 @@ namespace SudokuUI
 
         private void Btn_Solve_Click(object sender, RoutedEventArgs e)
         {
+            Cursor = System.Windows.Input.Cursors.Wait;
             while (Solver?.MoveNext() == true) { }
             Btn_Next.IsEnabled = false;
             Btn_Solve.IsEnabled = false;
+
+            Cursor = System.Windows.Input.Cursors.Arrow;
+
+            if (Answers.Count == 0)
+            {
+                MessageBox.Show("No solution found!");
+                return;
+            }
+
+            if (Answers.Count > 1)
+            {
+                Btn_Forward.IsEnabled = true;
+                Btn_Previous.IsEnabled = true;
+            }
         }
 
         private void Btn_Read_Click(object sender, RoutedEventArgs e)
@@ -223,17 +181,31 @@ namespace SudokuUI
                 VisualGame.WriteToFile(saveFileDialog.FileName);
         }
 
-        private void InitPossibleValues()
+        int currentAnswerIndex;
+        private void Btn_Previous_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var unit in VisualGame)
-            {
-                unit.Unit?.InitPossibleValues();
-                if (unit.Unit?.HasConflict() == true)
+            currentAnswerIndex -= 1;
+            if (currentAnswerIndex < 0) currentAnswerIndex = Answers.Count - 1;
+            ShowAnswer(Answers[currentAnswerIndex]);
+        }
+
+        private void Btn_Forward_Click(object sender, RoutedEventArgs e)
+        {
+            currentAnswerIndex += 1;
+            if (currentAnswerIndex >= Answers.Count) currentAnswerIndex = 0;
+            ShowAnswer(Answers[currentAnswerIndex]);
+        }
+
+        private void ShowAnswer(Game game)
+        {
+            for (int i = 0; i < 9; i++)
+                for (int j = 0; j < 9; j++)
                 {
-                    MessageBox.Show($"No possible values for unit ({unit.Unit.Position.Item1}, {unit.Unit.Position.Item2})!");
-                    break;
+                    var unit = VisualGame[i, j].Unit;
+                    if (unit == null) return;
+                    unit.Assumption = null;
+                    unit.OptionalAnswer = game[i, j]?.CurrentValue;
                 }
-            }
         }
     }
 }
