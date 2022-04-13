@@ -6,8 +6,11 @@
 
 ## Features
 :wink: Supports step by step solving (Recommended for single answer game)
+
 :kissing_heart: Supports Multiple Answers
+
 :blush: Different Answer types are distinguished by color
+
 :yum: Supports file IO
 
 ## Todos
