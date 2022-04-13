@@ -121,6 +121,7 @@ namespace SudokuUI
             foreach (var unit in VisualGame)
                 unit.Reset();
 
+            Tb_AnswerAmount.Visibility = Visibility.Hidden;
             Btn_Start.IsEnabled = true;
             Btn_Solve.IsEnabled = false;
             Btn_Reset.IsEnabled = false;
@@ -155,8 +156,14 @@ namespace SudokuUI
                 return;
             }
 
+            if (Answers.Count == 1)
+            {
+                ShowAnswer(Answers[0]);
+            }
+
             if (Answers.Count > 1)
             {
+                Tb_AnswerAmount.Visibility = Visibility.Visible;
                 Btn_Forward.IsEnabled = true;
                 Btn_Previous.IsEnabled = true;
             }
@@ -186,6 +193,7 @@ namespace SudokuUI
         {
             currentAnswerIndex -= 1;
             if (currentAnswerIndex < 0) currentAnswerIndex = Answers.Count - 1;
+            Tb_AnswerAmount.Text = $"{currentAnswerIndex} of {Answers.Count}";
             ShowAnswer(Answers[currentAnswerIndex]);
         }
 
@@ -193,6 +201,7 @@ namespace SudokuUI
         {
             currentAnswerIndex += 1;
             if (currentAnswerIndex >= Answers.Count) currentAnswerIndex = 0;
+            Tb_AnswerAmount.Text = $"{currentAnswerIndex} of {Answers.Count}";
             ShowAnswer(Answers[currentAnswerIndex]);
         }
 

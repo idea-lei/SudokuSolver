@@ -6,7 +6,6 @@ public enum UnitValueType
     Answer,
     OptionalAnswer,
     Assumption,
-    Conflict,
     None
 }
 
@@ -93,7 +92,6 @@ public class Unit
             if (Answer.HasValue) return UnitValueType.Answer;
             if (Assumption.HasValue) return UnitValueType.Assumption;
             if (OptionalAnswer.HasValue) return UnitValueType.OptionalAnswer;
-            if (HasConflict()) return UnitValueType.Conflict;
             return UnitValueType.None;
         }
     }
@@ -199,6 +197,7 @@ public class Unit
     {
         Assumption = null;
         Answer = null;
+        OptionalAnswer = null;
         _possibleValues.Clear();
 
         if (OnCurrentValueChanged != null)

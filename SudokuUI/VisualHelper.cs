@@ -63,9 +63,9 @@ namespace SudokuUI
                     unit.TextBox.BorderBrush = Brushes.Green;
                     unit.TextBox.Foreground = Brushes.Green;
                     break;
-                case UnitValueType.Conflict:
-                    unit.TextBox.BorderBrush = Brushes.Red;
-                    unit.TextBox.Foreground = Brushes.Red;
+                case UnitValueType.OptionalAnswer:
+                    unit.TextBox.BorderBrush = Brushes.Orange;
+                    unit.TextBox.Foreground = Brushes.Orange;
                     break;
             }
         }

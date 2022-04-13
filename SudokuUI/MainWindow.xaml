@@ -41,6 +41,7 @@
                 <Button Content="Clear" x:Name="Btn_Clear" Click="Btn_Clear_Click" Background="OrangeRed"/>
             </WrapPanel>
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                <TextBlock x:Name="Tb_AnswerAmount" Margin="8" VerticalAlignment="Center"/>
                 <Button x:Name="Btn_Previous" Click="Btn_Previous_Click" ToolTip="Previous Answer" IsEnabled="False">
                     <md:PackIcon Kind="ArrowBack"/>
                 </Button>
