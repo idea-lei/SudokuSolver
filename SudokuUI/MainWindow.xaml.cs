@@ -140,6 +140,7 @@ namespace SudokuUI
             {
                 Btn_Next.IsEnabled = false;
                 Btn_Solve.IsEnabled = false;
+                HandleResult();
             }
         }
 
@@ -152,6 +153,11 @@ namespace SudokuUI
 
             Cursor = System.Windows.Input.Cursors.Arrow;
 
+            HandleResult();
+        }
+
+        private void HandleResult()
+        {
             if (Answers.Count == 0)
             {
                 MessageBox.Show("No solution found!");
