@@ -2,7 +2,7 @@
 
 :fire: Sudoku solver with UI based on C# / WPF
 
-![Sudoku Solver by Lei](./Solver.gif)
+<img src="./Solver.gif" alt="drawing" width="300"/>
 
 ## Features
 :wink: Supports step by step solving (Recommended for single answer game)
@@ -15,3 +15,5 @@
 
 ## Todos
 1. Multi-Threading
+
+Hope you enjoy it. :wink:
